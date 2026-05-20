@@ -1034,6 +1034,19 @@ body {
   transform: translateY(-1px);
 }
 
+/* Language Toggle */
+.lang-toggle {
+  padding: 0 12px; height: 36px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--card);
+  cursor: pointer; font-size: 14px; line-height: 1;
+  display: flex; align-items: center; gap: 4px;
+  transition: all .15s; font-family: var(--font);
+}
+.lang-toggle:hover {
+  border-color: var(--brand); background: var(--brand-light);
+  transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
 /* Stats Bar */
 .stats {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -1581,13 +1594,13 @@ body.dark .skill-content tr:hover td { background: #1e293b; }
 <div id="app">
   <!-- Header -->
   <div class="header">
-    <h1>🧠 记忆浏览器 <small>Hermes Memory</small></h1>
+    <h1 data-i18n="memory_browser">🧠 记忆浏览器 <small>Hermes Memory</small></h1>
     <div class="header-actions">
+      <button class="lang-toggle" onclick="toggleLang()" title="中/EN" id="langBtn">🇨🇳/🇬🇧</button>
       <button class="theme-toggle" onclick="toggleTheme()" title="切换暗黑模式" id="themeBtn">🌙</button>
-      <button class="theme-toggle" onclick="sl(_lang=='zh'?'en':'zh')" title="语言/Language" id="langBtn">🌐</button>
-      <button class="btn btn-primary" onclick="openAdd()">＋ 新增事实</button>
-      <button class="btn" onclick="exportJSON()">📥 导出</button>
-      <button class="btn" onclick="document.getElementById('importFile').click()">📤 导入</button>
+      <button class="btn btn-primary" onclick="openAdd()" data-i18n="add_fact">＋ 新增事实</button>
+      <button class="btn" onclick="exportJSON()" data-i18n="export">📥 导出</button>
+      <button class="btn" onclick="document.getElementById('importFile').click()" data-i18n="import">📤 导入</button>
       <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
     </div>
   </div>
@@ -1597,17 +1610,17 @@ body.dark .skill-content tr:hover td { background: #1e293b; }
 
   <!-- Tabs -->
   <div class="tabs" id="tabs">
-    <button class="tab active" data-tab="facts" onclick="switchTab('facts')">📝 事实</button>
-    <button class="tab" data-tab="entities" onclick="switchTab('entities')">🏷️ 实体</button>
-    <button class="tab" data-tab="sessions" onclick="switchTab('sessions')">💬 对话</button>
-    <button class="tab" data-tab="skills" onclick="switchTab('skills')">🔧 技能</button>
+    <button class="tab active" data-tab="facts" onclick="switchTab('facts')" data-i18n="facts_tab">📝 事实</button>
+    <button class="tab" data-tab="entities" onclick="switchTab('entities')" data-i18n="entities_tab">🏷️ 实体</button>
+    <button class="tab" data-tab="sessions" onclick="switchTab('sessions')" data-i18n="sessions_tab">💬 对话</button>
+    <button class="tab" data-tab="skills" onclick="switchTab('skills')" data-i18n="skills_tab">🔧 技能</button>
   </div>
 
   <!-- Toolbar (facts) -->
   <div class="toolbar" id="toolbar">
     <div class="search-wrap">
       <span class="s-icon">🔍</span>
-      <input id="search" placeholder="搜索事实..." oninput="onSearch()">
+      <input id="search" data-i18n-placeholder="search_facts" placeholder="搜索事实..." oninput="onSearch()">
     </div>
     <select id="catFilter" onchange="onSearch()">
       <option value="">全部分类</option>
@@ -1630,117 +1643,338 @@ body.dark .skill-content tr:hover td { background: #1e293b; }
   <!-- Bulk Action Bar -->
   <div class="bulk-bar" id="bulkBar">
     <span class="bcount" id="bcount">0</span>
-    <span class="blabel">+t("ss")+</span>
-    <button class="btn" onclick="toggleAll()">+t("sa")+</button>
+    <span class="blabel" data-i18n="selected">已选</span>
+    <button class="btn" onclick="toggleAll()" data-i18n="select_all">全选/取消</button>
     <span class="bspacer"></span>
-    <button class="btn btn-danger" onclick="bulkDel()">🗑️ 删除</button>
-    <button class="btn" onclick="bulkRestore()">♻️ 恢复</button>
-    <button class="btn" onclick="openBulkCat()">🏷️ 改分类</button>
-    <button class="btn" onclick="openBulkTags()">#️⃣ 改标签</button>
-    <button class="btn" onclick="openBulkAddTags()">➕ 加标签</button>
-    <button class="btn" onclick="openBulkRemoveTags()">➖ 删标签</button>
-    <button class="btn btn-danger" onclick="bulkHard()">💀 彻底删除</button>
+    <button class="btn btn-danger" onclick="bulkDel()" data-i18n="delete">🗑️ 删除</button>
+    <button class="btn" onclick="bulkRestore()" data-i18n="restore">♻️ 恢复</button>
+    <button class="btn" onclick="openBulkCat()" data-i18n="change_cat">🏷️ 改分类</button>
+    <button class="btn" onclick="openBulkTags()" data-i18n="change_tags">#️⃣ 改标签</button>
+    <button class="btn" onclick="openBulkAddTags()" data-i18n="add_tags">➕ 加标签</button>
+    <button class="btn" onclick="openBulkRemoveTags()" data-i18n="remove_tags">➖ 删标签</button>
+    <button class="btn btn-danger" onclick="bulkHard()" data-i18n="hard_delete">💀 彻底删除</button>
   </div>
 </div>
 
 <script>
 // ===== i18n =====
-const L = {
-zh:{
-memory_browser:'记忆浏览器',tab_facts:'📝 事实',tab_entities:'🏷️ 实体',tab_sessions:'💬 对话',tab_skills:'🔧 技能',
-add_fact:'＋ 新增事实',exp:'📥 导出',imp:'📤 导入',sph:'搜索事实...',
-ca:'全部分类',cu:'用户偏好',cp:'项目',ct:'工具',cg:'通用',c_tr:'🗑️ 回收站',
-st:'按信任度',sn:'最新优先',so:'最早优先',
-nu:'用户偏好',np:'项目',nt:'工具',ng:'通用',n_tr:'回收站',
-ex:'展开全文',co:'收起',ss:'已选',sa:'全选/取消',
-sd:'🗑️ 删除',sr:'♻️ 恢复',sc:'🏷️ 改分类',stg:'#️⃣ 改标签',
-sat:'➕ 加标签',srt:'➖ 删标签',sh:'💀 彻底删除',
-ef:'没有找到事实',ee:'没有找到实体',es:'没有找到对话',esk:'没有自己安装的技能',
-ta:'新增成功',te:'编辑成功',td:'已移至回收站',tr:'已撤销删除',
-tex:'导出成功',tcp:'已复制',
-mn:'新增事实',me:'编辑事实',mc:'内容',mca:'分类',mt:'标签（逗号分隔）',
-mtr:'信任度',mcl:'取消',msv:'保存',mcl2:'关闭',
-mcd:'确认删除这条事实？',mcb:'确认删除',mch:'此操作不可恢复',
-mic:'请输入事实内容...',mtp:'例: python, api, config',
-df:'事实',dc:'分类：',dt:'信任度：',dcr:'创建时间：',dup:'更新时间：',
-dtg:'标签：',de:'实体：',dr:'检索次数：',dh:'有帮助：',
-efr:'条关联事实',etr:'信任',
-sdt:'对话详情',ssr:'搜索对话内容...',sms:'条',sbk:'←',
-skc:'个技能',skb:'← 返回列表',skbf:'← 返回技能',skf:'📎 关联文件',
-ch:'已复制',lf:'加载失败',
-bcc:'批量改分类',bct:'批量改标签',bca:'批量添加标签',bcr:'批量移除标签',
-bcp:'例: important, reviewed, todo',
-tga:'要添加的标签（逗号分隔，不会覆盖现有标签）',
-tgr:'要移除的标签（逗号分隔）',
-iiv:'无效的备份文件',iok:'导入成功',isk:'，跳过',
-nt:'(无标题)',rj:'刚刚',ma:'分钟前',ha:'小时前',da:'天前',
-kb:'<kbd>/</kbd> 搜索 <kbd>N</kbd> 新增 <kbd>J</kbd><kbd>K</kbd> 选中 <kbd>A</kbd> 全选 <kbd>Del</kbd> 删除 <kbd>R</kbd> 恢复 <kbd>Esc</kbd> 关闭',
-nf:'未找到技能',
-tf:'事实总数',te2:'实体总数',at:'平均信任度',ts2:'对话数',
-me2:'内容不能为空',
-it:'请输入标签',ip:'内容不能为空',
-de:'已删除',res:'已恢复',hd:'已彻底删除',upd:'已更新',
-adt:'已添加标签到',rmf:'已从',
-idl:'条事实',tr2:'条移除标签',
-ex2:'展开全文',co2:'收起',
-co3:'内容',ca2:'分类',ta2:'标签',trs:'信任度',
-cpy:'复制',
-be:'← 返回实体列表',
-},
-en:{
-memory_browser:'Memory Browser',tab_facts:'📝 Facts',tab_entities:'🏷️ Entities',tab_sessions:'💬 Sessions',tab_skills:'🔧 Skills',
-add_fact:'＋ New Fact',exp:'📥 Export',imp:'📤 Import',sph:'Search facts...',
-ca:'All Categories',cu:'User Prefs',cp:'Project',ct:'Tool',cg:'General',c_tr:'🗑️ Trash',
-st:'By Trust',sn:'Newest',so:'Oldest',
-nu:'User Prefs',np:'Project',nt:'Tool',ng:'General',n_tr:'Trash',
-ex:'Show more',co:'Collapse',ss:'selected',sa:'Toggle All',
-sd:'🗑️ Delete',sr:'♻️ Restore',sc:'🏷️ Category',stg:'#️⃣ Tags',
-sat:'➕ Add Tags',srt:'➖ Remove Tags',sh:'💀 Delete Forever',
-ef:'No facts found',ee:'No entities found',es:'No sessions found',esk:'No installed skills',
-ta:'Created',te:'Saved',td:'Moved to trash',tr:'Undone',
-tex:'Exported',tcp:'Copied',
-mn:'New Fact',me:'Edit Fact',mc:'Content',mca:'Category',mt:'Tags (comma-sep)',
-mtr:'Trust Score',mcl:'Cancel',msv:'Save',mcl2:'Close',
-mcd:'Delete this fact?',mcb:'Confirm delete',mch:'This cannot be undone!',
-mic:'Enter fact content...',mtp:'e.g. python, api, config',
-df:'Fact',dc:'Category: ',dt:'Trust: ',dcr:'Created: ',dup:'Updated: ',
-dtg:'Tags: ',de:'Entities: ',dr:'Retrievals: ',dh:'Helpful: ',
-efr:'associated facts',etr:'Trust',
-sdt:'Session Detail',ssr:'Search messages...',sms:'messages',sbk:'←',
-skc:'skills',skb:'← Back',skbf:'← Back to Skill',skf:'📎 Linked Files',
-ch:'Copied',lf:'Load failed',
-bcc:'Category',bct:'Tags',bca:'Add Tags',bcr:'Remove Tags',
-bcp:'e.g. important, reviewed, todo',
-tga:'Tags to add (comma-sep, wont overwrite)',
-tgr:'Tags to remove (comma-sep)',
-iiv:'Invalid backup',iok:'Imported',isk:', skipped',
-nt:'(No title)',rj:'just now',ma:'min ago',ha:'hr ago',da:'day ago',
-kb:'<kbd>/</kbd> Search <kbd>N</kbd> New <kbd>J</kbd><kbd>K</kbd> Select <kbd>A</kbd> All <kbd>Del</kbd> Delete <kbd>R</kbd> Restore <kbd>Esc</kbd> Close',
-nf:'Not found',
-tf:'Total Facts',te2:'Total Entities',at:'Avg Trust',ts2:'Sessions',
-me2:'Content is empty',
-it:'Enter tags',ip:'Content is empty',
-de:'Deleted',res:'Restored',hd:'Permanently deleted',upd:'Updated',
-adt:'Added tags to',rmf:'Removed from',
-idl:'items',tr2:'items',
-ex2:'Expand',co2:'Collapse',
-co3:'Content',ca2:'Category',ta2:'Tags',trs:'Trust',
-cpy:'Copy',
-be:'← Entity List',
-}
+let _LANG = (() => {
+  try { return localStorage.getItem('mb-lang') || navigator.language.slice(0,2); }
+  catch(e) { return 'zh'; }
+})();
+
+const _L = {
+  zh: {
+    memory_browser: '记忆浏览器',
+    facts_tab: '事实',
+    entities_tab: '实体',
+    sessions_tab: '对话',
+    skills_tab: '技能',
+    add_fact: '新增事实',
+    export: '导出',
+    import: '导入',
+    search_facts: '搜索事实...',
+    all_categories: '全部分类',
+    user_pref: '用户偏好',
+    project: '项目',
+    tool: '工具',
+    general: '通用',
+    trash: '回收站',
+    sort_trust: '按信任度',
+    sort_newest: '最新优先',
+    sort_oldest: '最早优先',
+    selected: '已选',
+    select_all: '全选',
+    delete: '删除',
+    restore: '恢复',
+    change_cat: '改分类',
+    change_tags: '改标签',
+    add_tags: '加标签',
+    remove_tags: '删标签',
+    hard_delete: '彻底删除',
+    edit: '编辑',
+    detail: '详情',
+    copy: '复制',
+    cancel: '取消',
+    save: '保存',
+    close: '关闭',
+    back: '返回',
+    back_list: '返回列表',
+    back_entity: '返回实体列表',
+    back_skill: '返回技能',
+    confirm_del: '确认删除',
+    confirm_del_one: '确认删除这条事实？',
+    confirm_hard: '此操作不可恢复',
+    content: '内容',
+    category: '分类',
+    tags: '标签',
+    trust_score: '信任度',
+    created_at: '创建时间',
+    updated_at: '更新时间',
+    retrieval_count: '检索次数',
+    helpful_count: '有帮助',
+    entities: '实体',
+    no_facts: '没有找到事实',
+    no_entities: '没有找到实体',
+    no_sessions: '没有找到对话',
+    no_skills: '没有自己安装的技能',
+    skill_not_found: '未找到技能',
+    loading_failed: '加载失败',
+    input_content: '请输入事实内容...',
+    input_placeholder: '请输入内容',
+    input_tags: '请输入标签',
+    new_tags_placeholder: '例: python, api, config',
+    cat_replacement: '会替换原有标签',
+    cat_not_overwrite: '不会覆盖现有标签',
+    new_label: '新标签（逗号分隔',
+    tags_to_add: '要添加的标签（逗号分隔）',
+    tags_to_remove: '要移除的标签（逗号分隔）',
+    invalid_backup: '无效的备份文件',
+    added: '新增成功',
+    edited: '编辑成功',
+    deleted: '已删除',
+    moved_trash: '已移至回收站',
+    restored: '已恢复',
+    undo_delete: '已撤销删除',
+    exported: '导出成功',
+    imported: '导入成功',
+    copied: '已复制',
+    edit_fact: '编辑事实',
+    batch_cat: '批量改分类',
+    batch_tags: '批量改标签',
+    batch_add_tags: '批量添加标签',
+    batch_remove_tags: '批量移除标签',
+    facts_total: '事实总数',
+    entities_total: '实体总数',
+    avg_trust: '平均信任度',
+    sessions_total: '对话数',
+    confirmed_del: '已删除',
+    confirmed_hard: '已彻底删除',
+    confirmed_restore: '已恢复',
+    updated_cat: '已更新',
+    updated_tags: '已更新',
+    added_tags: '已添加标签到',
+    removed_tags: '已从',
+    expand: '展开全文',
+    collapse: '收起',
+    chat_detail: '对话详情',
+    search_chat: '搜索对话内容...',
+    just_now: '刚刚',
+    min_ago: '分钟前',
+    hour_ago: '小时前',
+    day_ago: '天前',
+    skip_system: '跳过系统内部消息',
+    linked_files: '关联文件',
+    toggle_theme: '切换暗黑模式',
+    tags_comma: '标签（逗号分隔）',
+    item_count: '条',
+    related_facts: '条关联事实',
+    cat_updated: '条分类',
+    tags_updated: '条标签',
+    tags_removed: '条移除标签',
+    items_deleted: '条事实',
+    items_skipped: '跳过',
+    comma_sep: '逗号分隔',
+    search_by: '搜索',
+    no_title: '无标题',
+    a_go: '',
+    select: '选中',
+    kbd_search: '搜索',
+    kbd_new: '新增',
+    kbd_select: '选中',
+    kbd_all: '全选',
+    kbd_del: '删除',
+    kbd_restore: '恢复',
+    kbd_close: '关闭',
+  },
+  en: {
+    memory_browser: 'Memory Browser',
+    facts_tab: 'Facts',
+    entities_tab: 'Entities',
+    sessions_tab: 'Sessions',
+    skills_tab: 'Skills',
+    add_fact: '＋ New Fact',
+    export: 'Export',
+    import: 'Import',
+    search_facts: 'Search facts...',
+    all_categories: 'All Categories',
+    user_pref: 'User Preference',
+    project: 'Project',
+    tool: 'Tool',
+    general: 'General',
+    trash: 'Trash',
+    sort_trust: 'By Trust',
+    sort_newest: 'Newest',
+    sort_oldest: 'Oldest',
+    selected: 'Selected',
+    select_all: 'Select All',
+    delete: 'Delete',
+    restore: 'Restore',
+    change_cat: 'Category',
+    change_tags: 'Tags',
+    add_tags: '+ Tags',
+    remove_tags: '- Tags',
+    hard_delete: 'Hard Delete',
+    edit: 'Edit',
+    detail: 'Detail',
+    copy: 'Copy',
+    cancel: 'Cancel',
+    save: 'Save',
+    close: 'Close',
+    back: 'Back',
+    back_list: '← Back',
+    back_entity: '← Entity List',
+    back_skill: '← Skill',
+    confirm_del: 'Confirm delete',
+    confirm_del_one: 'Delete this fact?',
+    confirm_hard: 'This cannot be undone',
+    content: 'Content',
+    category: 'Category',
+    tags: 'Tags',
+    trust_score: 'Trust',
+    created_at: 'Created',
+    updated_at: 'Updated',
+    retrieval_count: 'Retrievals',
+    helpful_count: 'Helpful',
+    entities: 'Entities',
+    no_facts: 'No facts found',
+    no_entities: 'No entities found',
+    no_sessions: 'No sessions found',
+    no_skills: 'No installed skills',
+    skill_not_found: 'Skill not found',
+    loading_failed: 'Load failed',
+    input_content: 'Enter fact content...',
+    input_placeholder: 'Content cannot be empty',
+    input_tags: 'Enter tags',
+    new_tags_placeholder: 'e.g. python, api, config',
+    cat_replacement: 'Replaces existing tags',
+    cat_not_overwrite: 'Will not overwrite existing tags',
+    new_label: 'New tags (comma separated)',
+    tags_to_add: 'Tags to add (comma separated)',
+    tags_to_remove: 'Tags to remove (comma separated)',
+    invalid_backup: 'Invalid backup file',
+    added: 'Created',
+    edited: 'Saved',
+    deleted: 'Deleted',
+    moved_trash: 'Moved to trash',
+    restored: 'Restored',
+    undo_delete: 'Undo deleted',
+    exported: 'Exported',
+    imported: 'Imported',
+    copied: 'Copied',
+    edit_fact: 'Edit Fact',
+    batch_cat: 'Batch Category',
+    batch_tags: 'Batch Tags',
+    batch_add_tags: 'Batch Add Tags',
+    batch_remove_tags: 'Batch Remove Tags',
+    facts_total: 'Total Facts',
+    entities_total: 'Total Entities',
+    avg_trust: 'Avg Trust',
+    sessions_total: 'Sessions',
+    confirmed_del: 'Deleted',
+    confirmed_hard: 'Permanently deleted',
+    confirmed_restore: 'Restored',
+    updated_cat: 'Updated categories',
+    updated_tags: 'Updated tags',
+    added_tags: 'Added tags to',
+    removed_tags: 'Removed from',
+    expand: 'Show more',
+    collapse: 'Collapse',
+    chat_detail: 'Conversation Detail',
+    search_chat: 'Search chat...',
+    just_now: 'Just now',
+    min_ago: 'm ago',
+    hour_ago: 'h ago',
+    day_ago: 'd ago',
+    skip_system: 'Skip system messages',
+    linked_files: 'Linked Files',
+    toggle_theme: 'Toggle dark mode',
+    tags_comma: 'Tags (comma separated)',
+    item_count: '',
+    related_facts: ' related facts',
+    cat_updated: ' categories updated',
+    tags_updated: ' tags updated',
+    tags_removed: ' tags removed',
+    items_deleted: '',
+    items_skipped: 'skipped',
+    comma_sep: 'comma separated',
+    search_by: 'Search',
+    no_title: '(Untitled)',
+    a_go: ' ',
+    select: 'Select',
+    kbd_search: 'Search',
+    kbd_new: 'New',
+    kbd_select: 'Select',
+    kbd_all: 'All',
+    kbd_del: 'Delete',
+    kbd_restore: 'Restore',
+    kbd_close: 'Close',
+  }
 };
-let _lang=localStorage.getItem('ml')||'zh';
-function t(k){var v=L[_lang]&&L[_lang][k];return v||(L['zh']&&L['zh'][k])||k;}
-function sl(l){_lang=l;localStorage.setItem('ml',l);al();if(currentTab==='facts')renderFacts();else if(currentTab==='entities')renderEntities();else if(currentTab==='sessions')renderSessions();else renderSkills();}
-function al(){var h=document.querySelector('.header h1');if(h)h.innerHTML='🧠 '+t('memory_browser')+' <small>Hermes Memory</small>';
-var b=document.querySelector('.header-actions .btn-primary');if(b)b.innerHTML=t('add_fact');
-var e=document.querySelectorAll('.header-actions .btn');if(e.length>1)e[1].innerHTML=t('exp');if(e.length>2)e[2].innerHTML=t('imp');
-var tb=document.querySelectorAll('#tabs .tab');if(tb.length)tb[0].textContent=t('tab_facts');if(tb.length>1)tb[1].textContent=t('tab_entities');if(tb.length>2)tb[2].textContent=t('tab_sessions');if(tb.length>3)tb[3].textContent=t('tab_skills');
-var s=document.getElementById('search');if(s)s.placeholder=t('sph');
-var f=document.getElementById('catFilter');if(f&&f.options)for(var i=0;i<f.options.length;i++){var ks=['ca','cu','cp','ct','cg','c_tr'];f.options[i].text=t(ks[i]||'ca');}
+
+function __(key, fallback) {
+  const m = _L[_LANG] || _L.zh;
+  return m[key] || fallback || key;
 }
-function cn(c){var m={user_pref:'nu',project:'np',tool:'nt',general:'ng',trash:'n_tr'};return t(m[c]||c)||c;}
-var CAT_NAMES={};['user_pref','project','tool','general','trash'].forEach(function(c){CAT_NAMES[c]=cn(c);});
+
+function applyLang() {
+  // Update dynamic elements with data-i18n attributes
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = __(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = __(el.getAttribute('data-i18n-placeholder'));
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.title = __(el.getAttribute('data-i18n-title'));
+  });
+  // Update select options
+  const catFilter = document.getElementById('catFilter');
+  if (catFilter) {
+    const opts = { '':'all_categories', 'user_pref':'user_pref', 'project':'project',
+      'tool':'tool', 'general':'general', 'trash':'trash' };
+    Array.from(catFilter.options).forEach(o => {
+      if (opts[o.value]) o.textContent = __(opts[o.value]);
+    });
+  }
+  const sortSelect = document.getElementById('sortSelect');
+  if (sortSelect) {
+    const opts = { 'trust':'sort_trust', 'newest':'sort_newest', 'oldest':'sort_oldest' };
+    Array.from(sortSelect.options).forEach(o => {
+      if (opts[o.value]) o.textContent = __(opts[o.value]);
+    });
+  }
+  // Update lang button text
+  const langBtn = document.getElementById('langBtn');
+  if (langBtn) {
+    langBtn.textContent = _LANG === 'en' ? '🇬🇧/🇨🇳' : '🇨🇳/🇬🇧';
+    langBtn.title = _LANG === 'en' ? '切换中文' : 'Switch to English';
+  }
+  // Update theme button title
+  const themeBtn = document.getElementById('themeBtn');
+  if (themeBtn) themeBtn.title = __('toggle_theme');
+}
+
+function toggleLang() {
+  _LANG = _LANG === 'zh' ? 'en' : 'zh';
+  try { localStorage.setItem('mb-lang', _LANG); } catch(e) {}
+  applyLang();
+  updateKbdHint();
+  // Re-render current tab
+  const tab = document.querySelector('.tab.active');
+  if (tab) switchTab(tab.getAttribute('data-tab'));
+  else loadFacts();
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', () => {
+  applyLang();
+});
+
+function _tl(fn) {
+  fn();
+}
+const CAT_NAMES = { user_pref:'用户偏好', project:'项目', tool:'工具', general:'通用', trash:'回收站' };
 const CAT_LIST = ['user_pref','project','tool','general'];
 let sel = new Set();
 let allFacts = [];
@@ -1882,10 +2116,10 @@ async function renderStats() {
     const d = await api('/stats');
     const trustAvg = d.total_facts ? (d.avg_trust*100).toFixed(0) : 0;
     g('stats').innerHTML = `
-      <div class="stat-card"><div class="sval">${d.total_facts||0}</div><div class="slbl">${t("tf")}</div></div>
-      <div class="stat-card"><div class="sval">${d.entity_count||0}</div><div class="slbl">${t("te2")}</div></div>
-      <div class="stat-card"><div class="sval">${trustAvg}%</div><div class="slbl">${t("at")}</div></div>
-      <div class="stat-card"><div class="sval">${d.total_sessions||0}</div><div class="slbl">${t("ts2")}</div></div>
+      <div class="stat-card"><div class="sval">${d.total_facts||0}</div><div class="slbl">事实总数</div></div>
+      <div class="stat-card"><div class="sval">${d.entity_count||0}</div><div class="slbl">实体总数</div></div>
+      <div class="stat-card"><div class="sval">${trustAvg}%</div><div class="slbl">平均信任度</div></div>
+      <div class="stat-card"><div class="sval">${d.total_sessions||0}</div><div class="slbl">对话数</div></div>
     `;
   } catch(e) { g('stats').innerHTML = ''; }
 }
@@ -1931,7 +2165,7 @@ async function renderFacts() {
     totalPages = Math.max(1, Math.ceil(total / pageSize));
 
     if (!allFacts.length) {
-      g('content').innerHTML = '<div class=\"empty\"><div class=\"empty-icon\">📭</div>+t("ef")+<div class=\"empty-action\"><button class=\"btn btn-primary\" onclick=\"openAdd()\">＋ +t("mn")+</button></div></div>';
+      g('content').innerHTML = '<div class=\"empty\"><div class=\"empty-icon\">📭</div>没有找到事实<div class=\"empty-action\"><button class=\"btn btn-primary\" onclick=\"openAdd()\">＋ 新增事实</button></div></div>';
       return;
     }
 
@@ -1994,7 +2228,7 @@ async function renderFacts() {
     g('content').innerHTML = html;
     saveState();
   } catch(e) {
-    g('content').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>${t("lf")}${esc(e.message)}</div>`;
+    g('content').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>加载失败：${esc(e.message)}</div>`;
   }
 }
 
@@ -2010,8 +2244,6 @@ function toggleSel(id) {
 function updateBulkBar() {
   g('bcount').textContent = sel.size;
   g('bulkBar').classList.toggle('show', sel.size > 0);
-  var bl = document.getElementById('blabel');
-  if (bl) bl.textContent = t('ss');
 }
 function toggleAll() {
   const ids = allFacts.map(f=>f.fact_id).filter(id=>!isNaN(id));
@@ -2023,8 +2255,8 @@ function toggleAll() {
 // ===== CRUD =====
 function openAdd() {
   const o = document.createElement('div'); o.className='modal-overlay';
-  o.innerHTML=`<div class="modal"><h3>${t("mn")}</h3>
-    <label>内容</label><textarea id="newContent" placeholder="${t("mic")}"></textarea>
+  o.innerHTML=`<div class="modal"><h3>新增事实</h3>
+    <label>内容</label><textarea id="newContent" placeholder="请输入事实内容..."></textarea>
     <label>分类</label>
     <select id="newCat">
       <option value="user_pref">用户偏好</option>
@@ -2032,11 +2264,11 @@ function openAdd() {
       <option value="tool">工具</option>
       <option value="general">通用</option>
     </select>
-    <label>标签（逗号分隔）</label><input id="newTags" placeholder="${t("mtp")}">
+    <label>标签（逗号分隔）</label><input id="newTags" placeholder="例: python, api, config">
     <label>信任度</label><input id="newTrust" type="number" step="0.1" min="0" max="1" value="0.7">
     <div class="mbtns">
-      <button class="btn" onclick="closeModal(this)">${t("mcl")}</button>
-      <button class="btn btn-primary" onclick="doAdd()">${t("msv")}</button>
+      <button class="btn" onclick="closeModal(this)">取消</button>
+      <button class="btn btn-primary" onclick="doAdd()">保存</button>
     </div></div>`;
   document.body.appendChild(o);
   trapFocus(o);
@@ -2057,7 +2289,7 @@ async function doAdd() {
       })
     });
     closeModal(document.querySelector('.modal-overlay'));
-    toast('+t("ta")+');
+    toast('新增成功');
     renderFacts(); renderStats();
   } catch(e) { toast(e.message,'e'); }
 }
@@ -2068,7 +2300,7 @@ function openEditFrom(btn) {
   const tags = btn.dataset.etag;
   const trust = btn.dataset.et;
   const o = document.createElement('div'); o.className='modal-overlay';
-  o.innerHTML=`<div class="modal"><h3>${t("me")} #${id}</h3>
+  o.innerHTML=`<div class="modal"><h3>编辑事实 #${id}</h3>
     <label>内容</label><textarea id="editContent">${esc(content)}</textarea>
     <label>分类</label>
     <select id="editCat">
@@ -2077,8 +2309,8 @@ function openEditFrom(btn) {
     <label>标签（逗号分隔）</label><input id="editTags" value="${esc(tags)}">
     <label>信任度</label><input id="editTrust" type="number" step="0.1" min="0" max="1" value="${trust}">
     <div class="mbtns">
-      <button class="btn" onclick="closeModal(this)">${t("mcl")}</button>
-      <button class="btn btn-primary" onclick="doEdit(${id})">${t("msv")}</button>
+      <button class="btn" onclick="closeModal(this)">取消</button>
+      <button class="btn btn-primary" onclick="doEdit(${id})">保存</button>
     </div></div>`;
   document.body.appendChild(o);
   trapFocus(o);
@@ -2086,7 +2318,7 @@ function openEditFrom(btn) {
 }
 async function doEdit(id) {
   const content = g('editContent').value.trim();
-  if (!content) { toast('+t("me2")+','e'); return; }
+  if (!content) { toast('内容不能为空','e'); return; }
   try {
     await api(`/facts/${id}/edit`, {
       method:'POST',
@@ -2099,12 +2331,12 @@ async function doEdit(id) {
       })
     });
     closeModal(document.querySelector('.modal-overlay'));
-    toast('+t("te")+');
+    toast('编辑成功');
     renderFacts();
   } catch(e) { toast(e.message,'e'); }
 }
 async function del(id) {
-  if (!confirm('+t("mcd")+')) return;
+  if (!confirm('确认删除这条事实？')) return;
   try {
     await api('/facts/bulk', {
       method:'POST',
@@ -2112,14 +2344,14 @@ async function del(id) {
       body:JSON.stringify({ids:[id], action:'soft_delete'})
     });
     sel.delete(id); updateBulkBar();
-    toast('+t("td")+','s', ()=>restoreOne(id));
+    toast('已移至回收站','s', ()=>restoreOne(id));
     renderFacts(); renderStats();
   } catch(e) { toast(e.message,'e'); }
 }
 async function restoreOne(id) {
   try {
     await api(`/facts/${id}/restore`, { method:'POST' });
-    toast('+t("tr")+');
+    toast('已撤销删除');
     renderFacts(); renderStats();
   } catch(e) { toast(e.message,'e'); }
 }
@@ -2164,7 +2396,7 @@ async function bulkRestore() {
 async function bulkHard() {
   const ids = [...sel];
   if (!ids.length) return;
-  if (!confirm(`💀 彻底删除 ${ids.length} 条？${t("mch")}！`)) return;
+  if (!confirm(`💀 彻底删除 ${ids.length} 条？此操作不可恢复！`)) return;
   try {
     await api('/facts/bulk', {
       method:'POST',
@@ -2180,11 +2412,11 @@ async function bulkHard() {
 function openBulkCat() {
   if (!sel.size) return;
   const o = document.createElement('div'); o.className='modal-overlay';
-  o.innerHTML=`<div class="modal"><h3>${t("bcc")}（${sel.size} 条）</h3>
+  o.innerHTML=`<div class="modal"><h3>批量改分类（${sel.size} 条）</h3>
     <div class="cat-picker">
       ${CAT_LIST.map(c=>`<button onclick="doBulkCat('${c}')">${CAT_NAMES[c]}</button>`).join('')}
     </div>
-    <div class="mbtns"><button class="btn" onclick="closeModal(this)">${t("mcl")}</button></div></div>`;
+    <div class="mbtns"><button class="btn" onclick="closeModal(this)">取消</button></div></div>`;
   document.body.appendChild(o);
   trapFocus(o);
 }
@@ -2205,12 +2437,12 @@ async function doBulkCat(cat) {
 function openBulkTags() {
   if (!sel.size) return;
   const o = document.createElement('div'); o.className='modal-overlay';
-  o.innerHTML=`<div class="modal"><h3>${t("bct")}（${sel.size} 条）</h3>
+  o.innerHTML=`<div class="modal"><h3>批量改标签（${sel.size} 条）</h3>
     <label>新标签（逗号分隔，会替换原有标签）</label>
-    <input id="bulkTagsInput" placeholder="${t("bcp")}">
+    <input id="bulkTagsInput" placeholder="例: important, reviewed, todo">
     <div class="mbtns">
-      <button class="btn" onclick="closeModal(this)">${t("mcl")}</button>
-      <button class="btn btn-primary" onclick="doBulkTags()">${t("msv")}</button>
+      <button class="btn" onclick="closeModal(this)">取消</button>
+      <button class="btn btn-primary" onclick="doBulkTags()">保存</button>
     </div></div>`;
   document.body.appendChild(o);
   trapFocus(o);
@@ -2238,7 +2470,7 @@ async function renderEntities() {
     const d = await api('/entities');
     const entities = d.entities || d.data || d;
     if (!entities.length) {
-      g('content').innerHTML = '<div class=\"empty\"><div class=\"empty-icon\">🏷️</div>+t("ee")+</div>';
+      g('content').innerHTML = '<div class=\"empty\"><div class=\"empty-icon\">🏷️</div>没有找到实体</div>';
       return;
     }
     let html = '<div class="entity-list">';
@@ -2247,13 +2479,13 @@ async function renderEntities() {
       const cnt = e.fact_count || e.count || 0;
       html += `<div class="entity-item" onclick="showEntity('${esc(name)}')">
         <div class="ename">🏷️ ${esc(name)}</div>
-        <div class="ecount">${cnt} ${t("efr")}</div>
+        <div class="ecount">${cnt} 条关联事实</div>
       </div>`;
     });
     html += '</div>';
     g('content').innerHTML = html;
   } catch(e) {
-    g('content').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>${t("lf")}${esc(e.message)}</div>`;
+    g('content').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>加载失败：${esc(e.message)}</div>`;
   }
 }
 async function showEntity(name) {
@@ -2263,7 +2495,7 @@ async function showEntity(name) {
     const facts = e.facts || e.associated_facts || [];
     let html = `<div class="edetail">
       <h3>🏷️ ${esc(name)}</h3>
-      <div class="esub">${facts.length} ${t("efr")}</div>
+      <div class="esub">${facts.length} 条关联事实</div>
       <div class="efacts">`;
     facts.forEach(f => {
       const dt = (f.created_at||'').replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}).*/,'$2-$3 $4:$5');
@@ -2286,7 +2518,7 @@ async function renderSessions() {
     const d = await api('/sessions');
     const sessions = d.sessions || d.data || d;
     if (!sessions.length) {
-      g('content').innerHTML = '<div class=\"empty\"><div class=\"empty-icon\">💬</div>+t("es")+</div>';
+      g('content').innerHTML = '<div class=\"empty\"><div class=\"empty-icon\">💬</div>没有找到对话</div>';
       return;
     }
     let html = '<div class="session-list">';
@@ -2303,10 +2535,10 @@ async function renderSessions() {
           const dt = new Date(s.date.replace(' ','T')+'+08:00');
           const now = new Date();
           const diff = (now - dt) / 1000;
-          if (diff < 60) timeAgo = '+t("rj")+';
-          else if (diff < 3600) timeAgo = Math.floor(diff/60) + '+t("ma")+';
-          else if (diff < 86400) timeAgo = Math.floor(diff/3600) + '+t("ha")+';
-          else if (diff < 2592000) timeAgo = Math.floor(diff/86400) + '+t("da")+';
+          if (diff < 60) timeAgo = '刚刚';
+          else if (diff < 3600) timeAgo = Math.floor(diff/60) + '分钟前';
+          else if (diff < 86400) timeAgo = Math.floor(diff/3600) + '小时前';
+          else if (diff < 2592000) timeAgo = Math.floor(diff/86400) + '天前';
           else timeAgo = date.slice(5);
         } catch(e) { timeAgo = date.slice(5); }
       }
@@ -2323,7 +2555,7 @@ async function renderSessions() {
     html += '</div>';
     g('content').innerHTML = html;
   } catch(e) {
-    g('content').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>${t("lf")}${esc(e.message)}</div>`;
+    g('content').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>加载失败：${esc(e.message)}</div>`;
   }
 }
 function openSession(id) {
@@ -2337,7 +2569,7 @@ async function renderChat() {
     const d = await api(`/sessions/${viewingSession}`);
     const msgs = d.messages || d.data || [];
     const firstUser = msgs.find(m=>m.role==='user');
-    const title = firstUser ? (firstUser.content||'').slice(0,120) : '+t("sdt")+';
+    const title = firstUser ? (firstUser.content||'').slice(0,120) : '对话详情';
     const msgCount = msgs.filter(m=>m.role==='user'||m.role==='assistant').length;
 
     let html = '<div class="chat-view">';
@@ -2378,7 +2610,7 @@ async function renderChat() {
   } catch(e) {
     viewingSession = null;
     saveState();
-    g('content').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>${t("lf")}${esc(e.message)}</div>`;
+    g('content').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>加载失败：${esc(e.message)}</div>`;
   }
 }
 
@@ -2392,7 +2624,7 @@ async function exportJSON() {
     a.download = `hermes-memory-${new Date().toISOString().slice(0,10)}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
-    toast('+t("tex")+');
+    toast('导出成功');
   } catch(e) { toast(e.message,'e'); }
 }
 
@@ -2403,13 +2635,13 @@ async function importJSON(input) {
   try {
     const text = await file.text();
     const data = JSON.parse(text);
-    if (!data.facts || !data.facts.length) { toast('+t("iiv")+','e'); return; }
+    if (!data.facts || !data.facts.length) { toast('无效的备份文件','e'); return; }
     const result = await api('/facts/import', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({facts: data.facts})
     });
-    toast(`${t("iok")}${result.imported} 条${result.skipped ? `+t("isk")+ ${result.skipped} 条` : ''}`);
+    toast(`导入成功：${result.imported} 条${result.skipped ? `，跳过 ${result.skipped} 条` : ''}`);
     input.value = '';
     renderFacts(); renderStats();
   } catch(e) { toast(e.message,'e'); input.value = ''; }
@@ -2434,17 +2666,17 @@ async function showDetail(factId) {
       <h3>📄 事实 #${f.fact_id}</h3>
       <div style="font-size:14px;line-height:1.8;margin-bottom:16px;word-break:break-word">${esc(f.content)}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;color:var(--text2)">
-        <div><strong>${t("dc")}</strong><span class="tag ${cc}">${catName}</span></div>
-        <div><strong>${t("dt")}</strong>${tpct}%</div>
-        <div><strong>${t("dcr")}</strong>${dt}</div>
-        <div><strong>${t("dup")}</strong>${ut}</div>
-        ${tags ? `<div style="grid-column:1/-1"><strong>+t("dtg")+</strong>${tags}</div>` : ''}
-        ${entities ? `<div style="grid-column:1/-1"><strong>+t("de")+</strong>${entities}</div>` : ''}
-        <div><strong>${t("dr")}</strong>${ret}</div>
-        <div><strong>${t("dh")}</strong>${helpful}次</div>
+        <div><strong>分类：</strong><span class="tag ${cc}">${catName}</span></div>
+        <div><strong>信任度：</strong>${tpct}%</div>
+        <div><strong>创建时间：</strong>${dt}</div>
+        <div><strong>更新时间：</strong>${ut}</div>
+        ${tags ? `<div style="grid-column:1/-1"><strong>标签：</strong>${tags}</div>` : ''}
+        ${entities ? `<div style="grid-column:1/-1"><strong>实体：</strong>${entities}</div>` : ''}
+        <div><strong>检索次数：</strong>${ret}</div>
+        <div><strong>有帮助：</strong>${helpful}次</div>
       </div>
       <div class="mbtns">
-        <button class="btn btn-primary" onclick="closeModal(this)">${t("mcl2")}</button>
+        <button class="btn btn-primary" onclick="closeModal(this)">关闭</button>
       </div>
     </div>`;
     document.body.appendChild(o);
@@ -2512,12 +2744,12 @@ function filterChat(input) {
 function openBulkAddTags() {
   if (!sel.size) return;
   const o = document.createElement('div'); o.className='modal-overlay';
-  o.innerHTML=`<div class="modal"><h3>${t("bca")}（${sel.size} 条）</h3>
-    <label>${t("tga")}</label>
+  o.innerHTML=`<div class="modal"><h3>批量添加标签（${sel.size} 条）</h3>
+    <label>要添加的标签（逗号分隔，不会覆盖现有标签）</label>
     <input id="bulkAddTagsInput" placeholder="例: important, reviewed">
     <div class="mbtns">
-      <button class="btn" onclick="closeModal(this)">${t("mcl")}</button>
-      <button class="btn btn-primary" onclick="doBulkAddTags()">${t("msv")}</button>
+      <button class="btn" onclick="closeModal(this)">取消</button>
+      <button class="btn btn-primary" onclick="doBulkAddTags()">保存</button>
     </div></div>`;
   document.body.appendChild(o);
   trapFocus(o);
@@ -2525,7 +2757,7 @@ function openBulkAddTags() {
 async function doBulkAddTags() {
   const ids = [...sel];
   const tags = g('bulkAddTagsInput').value.trim();
-  if (!tags) { toast('+t("it")+','e'); return; }
+  if (!tags) { toast('请输入标签','e'); return; }
   try {
     await api('/facts/bulk', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ids, action:'add_tags', tags}) });
     closeModal(document.querySelector('.modal-overlay'));
@@ -2537,11 +2769,11 @@ async function doBulkAddTags() {
 function openBulkRemoveTags() {
   if (!sel.size) return;
   const o = document.createElement('div'); o.className='modal-overlay';
-  o.innerHTML=`<div class="modal"><h3>${t("bcr")}（${sel.size} 条）</h3>
-    <label>${t("tgr")}</label>
+  o.innerHTML=`<div class="modal"><h3>批量移除标签（${sel.size} 条）</h3>
+    <label>要移除的标签（逗号分隔）</label>
     <input id="bulkRemoveTagsInput" placeholder="例: temp, draft">
     <div class="mbtns">
-      <button class="btn" onclick="closeModal(this)">${t("mcl")}</button>
+      <button class="btn" onclick="closeModal(this)">取消</button>
       <button class="btn btn-danger" onclick="doBulkRemoveTags()">移除</button>
     </div></div>`;
   document.body.appendChild(o);
@@ -2550,7 +2782,7 @@ function openBulkRemoveTags() {
 async function doBulkRemoveTags() {
   const ids = [...sel];
   const tags = g('bulkRemoveTagsInput').value.trim();
-  if (!tags) { toast('+t("it")+','e'); return; }
+  if (!tags) { toast('请输入标签','e'); return; }
   try {
     await api('/facts/bulk', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ids, action:'remove_tags', tags}) });
     closeModal(document.querySelector('.modal-overlay'));
@@ -2591,7 +2823,7 @@ async function renderSkills() {
     }
     const skills = skillsData.filter(s => s.installed);
     if (!skills.length) {
-      g('content').innerHTML = '<div class=\"empty\"><div class=\"empty-icon\">🔧</div>+t("esk")+</div>';
+      g('content').innerHTML = '<div class=\"empty\"><div class=\"empty-icon\">🔧</div>没有自己安装的技能</div>';
       return;
     }
     const groups = {};
@@ -2601,7 +2833,7 @@ async function renderSkills() {
       groups[cat].push(s);
     });
     const catOrder = Object.keys(groups).sort();
-    let html = `<div style="font-size:12px;color:var(--text2);margin-bottom:12px">共 ${skills.length} ${t("skc")}</div>`;
+    let html = `<div style="font-size:12px;color:var(--text2);margin-bottom:12px">共 ${skills.length} 个技能</div>`;
     catOrder.forEach(cat => {
       html += `<h3 style="font-size:14px;font-weight:600;color:var(--text);margin:20px 0 10px">${esc(cat)}</h3>
       <div class="session-list">`;
@@ -2617,7 +2849,7 @@ async function renderSkills() {
     });
     g('content').innerHTML = html;
   } catch(e) {
-    g('content').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>+t("lf")+${esc(e.message)}</div>`;
+    g('content').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>加载失败：${esc(e.message)}</div>`;
   }
 }
 
@@ -2625,7 +2857,7 @@ async function viewSkill(name) {
   viewingSkill = name;
   saveState();
   const cached = (skillsData||[]).find(s => (s.name||s.dir) === name);
-  if (!cached) { g('content').innerHTML = '<div class="empty">${t("nf")}</div>'; return; }
+  if (!cached) { g('content').innerHTML = '<div class="empty">未找到技能</div>'; return; }
   const body = (cached.body||'');
   // Fetch full detail (includes linked_files)
   const detail = await api(`/skills/${encodeURIComponent(name)}`);
@@ -2684,7 +2916,7 @@ async function viewSkillFile(skillName, filePath) {
     html += `</div></div>`;
     g('content').innerHTML = html;
   } catch(e) {
-    g('content').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>+t("lf")+${esc(e.message)}</div>`;
+    g('content').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>加载失败：${esc(e.message)}</div>`;
   }
 }
 
@@ -2763,7 +2995,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     else renderSkills();
   }
   else renderSessions();
-  al();
 });
 
 // ===== Keyboard hint helper =====
@@ -2774,7 +3005,7 @@ function updateKbdHint() {
     hint.className = 'kbd-hint';
     document.body.appendChild(hint);
   }
-  hint.innerHTML = t('kb');
+  hint.innerHTML = `<kbd>/</kbd> ${__('kbd_search')} <kbd>N</kbd> ${__('kbd_new')} <kbd>J</kbd><kbd>K</kbd> ${__('kbd_select')} <kbd>A</kbd> ${__('kbd_all')} <kbd>Del</kbd> ${__('kbd_del')} <kbd>R</kbd> ${__('kbd_restore')} <kbd>Esc</kbd> ${__('kbd_close')}`;
 }
 updateKbdHint();
 </script>

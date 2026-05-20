@@ -12,7 +12,15 @@ if [ ! -f "$SERVER_PY" ]; then
     exit 1
 fi
 
+# 尝试 hermes-agent venv（含 fastapi），回退到系统 python
+if [ -f "$HOME/.hermes/hermes-agent/venv/bin/python3" ]; then
+    PYTHON="$HOME/.hermes/hermes-agent/venv/bin/python3"
+else
+    PYTHON="python3"
+fi
+
 echo "🧠 Hermes Memory Browser starting on http://127.0.0.1:$PORT"
+echo "   Python: $PYTHON"
 echo "   Press Ctrl+C to stop"
 
-exec python3 "$SERVER_PY" "$PORT"
+exec "$PYTHON" "$SERVER_PY" "$PORT"
