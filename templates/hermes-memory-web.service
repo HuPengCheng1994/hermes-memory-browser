@@ -1,0 +1,15 @@
+[Unit]
+Description=Hermes Memory Web UI
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=%h/.hermes/hermes-agent/venv/bin/python3 %h/.hermes/hermes-agent/memory_web/memory_api.py
+Restart=on-failure
+RestartSec=5
+WorkingDirectory=%h/.hermes/hermes-agent/memory_web
+Environment=PATH=%h/.hermes/hermes-agent/venv/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=default.target
