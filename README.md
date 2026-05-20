@@ -11,7 +11,7 @@
 
 A single-file FastAPI web application that opens a window into your Hermes agent's memory system. No build step, no npm, no database setup — just `python3 server.py` and open a browser.
 
-> **Screenshot**: Open `http://127.0.0.1:8643` in your browser to see the UI. This screenshot was taken from a real session — [click here](https://github.com/HuPengCheng1994/hermes-memory-browser) for a live view.
+![screenshot](assets/screenshot.png)
 
 ## ✨ Features
 
